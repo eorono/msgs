@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use App\Jobs\ProcessMessage;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Servicio de mensajería para la plataforma Telegram.
@@ -70,8 +72,10 @@ class TelegramService implements SendsMessages
      */
     public function sendMassMessage(array $users, $message)
     {
+        $senderId = Auth::id() ?? 1;
+
         foreach ($users as $user) {
-            $this->sendMessage($user, $message);
+            ProcessMessage::dispatch('telegram', $user, $message, $senderId);
         }
     }
 }

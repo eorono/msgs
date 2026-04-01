@@ -13,6 +13,7 @@
  * - slack: Servicio simulado que registra en logs y BD
  * - telegram: Servicio real que usa la API de Telegram
  * - whatsapp: Servicio real que usa la Evolution API
+ * - email: Servicio real que usa el sistema de correo de Laravel
  *
  * Para agregar una nueva plataforma:
  * 1. Crear una clase que implemente App\Services\SendsMessages
@@ -24,4 +25,5 @@ return [
     'slack' => \App\Services\SlackService::class,
     'telegram' => \App\Services\TelegramService::class,
     'whatsapp' => \App\Services\WhatsappService::class,
+    'email' => \App\Services\EmailService::class,
 ];

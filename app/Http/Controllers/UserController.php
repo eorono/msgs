@@ -65,4 +65,61 @@ class UserController extends Controller
 
         return back()->with('success', 'User successfully created!');
     }
+
+    /**
+     * Muestra el formulario para editar un usuario existente.
+     *
+     * @param  User $user Usuario a editar
+     * @return \Illuminate\View\View Vista con el formulario de edición
+     */
+    public function edit(User $user)
+    {
+        return view('users.edit', compact('user'));
+    }
+
+    /**
+     * Actualiza la información de un usuario en el sistema.
+     *
+     * @param  Request $request Solicitud HTTP con los nuevos datos
+     * @param  User    $user    Usuario a actualizar
+     * @return \Illuminate\Http\RedirectResponse Redirige con mensaje de éxito
+     */
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'telegram_chat_id' => ['nullable', 'string', 'max:255', 'unique:users,telegram_chat_id,' . $user->id],
+            'whatsapp_number' => ['nullable', 'string', 'max:255', 'unique:users,whatsapp_number,' . $user->id],
+        ]);
+
+        $cleanedWhatsapp = $request->whatsapp_number ? preg_replace('/[^0-9]/', '', $request->whatsapp_number) : null;
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'telegram_chat_id' => $request->telegram_chat_id,
+            'whatsapp_number' => $cleanedWhatsapp,
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully!');
+    }
+
+    /**
+     * Elimina un usuario de la base de datos junto con su historial de mensajes.
+     *
+     * @param  User $user Usuario a eliminar
+     * @return \Illuminate\Http\RedirectResponse Redirige con mensaje de éxito
+     */
+    public function destroy(User $user)
+    {
+        // Eliminamos el historial de mensajes asociados (enviados y recibidos)
+        // para evitar errores de integridad referencial.
+        $user->messages()->delete(); 
+        \App\Models\Message::where('recipient_id', $user->id)->delete();
+        
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+    }
 }

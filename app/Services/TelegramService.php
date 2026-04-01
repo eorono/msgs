@@ -31,7 +31,7 @@ class TelegramService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMessage(User $user, $message)
+    public function sendMessage(User $user, $message, array $options = [])
     {
         $status = 'failed';
 
@@ -70,12 +70,12 @@ class TelegramService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMassMessage(array $users, $message)
+    public function sendMassMessage(array $users, $message, array $options = [])
     {
         $senderId = Auth::id() ?? 1;
 
         foreach ($users as $user) {
-            ProcessMessage::dispatch('telegram', $user, $message, $senderId);
+            ProcessMessage::dispatch('telegram', $user, $message, $senderId, $options);
         }
     }
 }

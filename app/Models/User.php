@@ -49,8 +49,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'user_id',
+        'recipient_id',
+        'whatsapp_instance_id',
     ];
 
     /**
@@ -77,5 +78,13 @@ class User extends Authenticatable
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Obtiene las instancias de WhatsApp vinculadas a este usuario.
+     */
+    public function whatsappInstances(): HasMany
+    {
+        return $this->hasMany(WhatsappInstance::class);
     }
 }

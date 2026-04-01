@@ -36,23 +36,26 @@ class WhatsappService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMessage(User $user, $message)
+    public function sendMessage(User $user, $message, array $options = [])
     {
         $status = 'failed';
 
+        $instanceId = $options['whatsapp_instance_id'] ?? null;
+        $instance = $instanceId ? \App\Models\WhatsappInstance::find($instanceId) : null;
+        
         if ($user->whatsapp_number) {
             $apiUrl = env('EVOLUTION_API_URL');
-            $instance = env('EVOLUTION_API_INSTANCE');
+            $instanceName = $instance ? $instance->name : env('EVOLUTION_API_INSTANCE');
             $apiKey = env('EVOLUTION_API_KEY');
 
-            if ($apiUrl && $instance && $apiKey) {
+            if ($apiUrl && $instanceName && $apiKey) {
                 // El número ya se limpia al guardar, pero por si acaso nos aseguramos de que no haya +, -, o espacios
                 $cleanNumber = preg_replace('/[^0-9]/', '', $user->whatsapp_number);
 
                 $response = Http::withHeaders([
                     'apikey' => $apiKey,
                     'Content-Type' => 'application/json',
-                ])->post("{$apiUrl}/message/sendText/{$instance}", [
+                ])->post("{$apiUrl}/message/sendText/{$instanceName}", [
                     'number' => $cleanNumber,
                     'text' => $message,
                 ]);
@@ -75,6 +78,7 @@ class WhatsappService implements SendsMessages
             'user_id' => auth()->id(),
             'status' => $status,
             'recipient_id' => $user->id,
+            'whatsapp_instance_id' => $instanceId,
         ]);
     }
 
@@ -88,12 +92,12 @@ class WhatsappService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMassMessage(array $users, $message)
+    public function sendMassMessage(array $users, $message, array $options = [])
     {
         $senderId = Auth::id() ?? 1;
 
         foreach ($users as $user) {
-            ProcessMessage::dispatch('whatsapp', $user, $message, $senderId);
+            ProcessMessage::dispatch('whatsapp', $user, $message, $senderId, $options);
         }
     }
 }

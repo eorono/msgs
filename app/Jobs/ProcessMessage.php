@@ -49,19 +49,28 @@ class ProcessMessage implements ShouldQueue
     protected $senderId;
 
     /**
+     * Opciones adicionales (ej: whatsapp_instance_id).
+     *
+     * @var array
+     */
+    protected $options;
+
+    /**
      * Crea una nueva instancia del trabajo.
      *
      * @param string $platform
      * @param User   $user
      * @param string $message
      * @param int    $senderId
+     * @param array  $options
      */
-    public function __construct(string $platform, User $user, string $message, int $senderId)
+    public function __construct(string $platform, User $user, string $message, int $senderId, array $options = [])
     {
         $this->platform = $platform;
         $this->user = $user;
         $this->message = $message;
         $this->senderId = $senderId;
+        $this->options = $options;
     }
 
     /**
@@ -80,7 +89,7 @@ class ProcessMessage implements ShouldQueue
         
         if ($serviceClass) {
             $service = app($serviceClass);
-            $service->sendMessage($this->user, $this->message);
+            $service->sendMessage($this->user, $this->message, $this->options);
         }
     }
 }

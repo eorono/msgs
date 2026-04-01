@@ -16,15 +16,29 @@
                     <form method="post" action="{{ route('send') }}">
                         @csrf
                         <div class="space-y-4">
-                            <div class="flex flex-col">
+                            <div class="flex flex-col" x-data="{ platform: '{{ old('platform', 'email') }}' }">
                                 <label for="platform">Platform</label>
-                                <select name="platform" id="platform">
+                                <select name="platform" id="platform" x-model="platform">
                                     @foreach(config('platforms') as $platform => $_)
                                         <option value="{{ $platform }}">
                                             {{ \Illuminate\Support\Str::title($platform) }}
                                         </option>
                                     @endforeach
                                 </select>
+                                
+                                <div class="mt-4" x-show="platform === 'whatsapp'">
+                                    <label for="whatsapp_instance_id" class="block text-sm font-medium text-gray-700">WhatsApp Instance</label>
+                                    <select name="whatsapp_instance_id" id="whatsapp_instance_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="">{{ __('Default (.env)') }}</option>
+                                        @foreach(auth()->user()->whatsappInstances as $instance)
+                                            <option value="{{ $instance->id }}" {{ $instance->status !== 'connected' ? 'disabled' : '' }}>
+                                                {{ $instance->name }} ({{ $instance->status }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <p class="mt-1 text-xs text-gray-500">Only connected instances can send messages.</p>
+                                </div>
+
                                 @error('platform')
                                 <p class="text-red-800">{{ $message }}</p>
                                 @enderror

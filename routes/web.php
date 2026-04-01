@@ -11,6 +11,7 @@ use App\Http\Controllers\GetSentMessages;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SendMessage;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WhatsappInstanceController;
 use Illuminate\Support\Facades\Route;
 
 // Ruta principal: Dashboard (requiere autenticación y email verificado)
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Gestión de instancias de WhatsApp
+    Route::resource('whatsapp', WhatsappInstanceController::class);
 });
 
 

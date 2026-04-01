@@ -28,7 +28,7 @@ class DiscordService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMessage(User $user, $message)
+    public function sendMessage(User $user, $message, array $options = [])
     {
         \Log::info("[DISCORD]: Message sent to user: $user->email - \"$message\"");
         Message::create([
@@ -50,12 +50,12 @@ class DiscordService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMassMessage(array $users, $message)
+    public function sendMassMessage(array $users, $message, array $options = [])
     {
         $senderId = Auth::id() ?? 1;
 
         foreach ($users as $user) {
-            ProcessMessage::dispatch('discord', $user, $message, $senderId);
+            ProcessMessage::dispatch('discord', $user, $message, $senderId, $options);
         }
     }
 }

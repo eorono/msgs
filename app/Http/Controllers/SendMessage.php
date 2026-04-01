@@ -43,10 +43,17 @@ class SendMessage extends Controller
             'users.*' => 'int|exists:users,id'
         ]);
 
-        $platformService = app(config('platforms')[$data['platform']]);
-        $users = User::findMany($data['users'])->all();
-        $platformService->sendMassMessage($users, $data['message']);
+        $platform = $request->input('platform');
+        $users = User::whereIn('id', $request->input('users'))->get()->all();
+        $message = $request->input('message');
+        $options = [
+            'whatsapp_instance_id' => $request->input('whatsapp_instance_id'),
+        ];
 
-        return back()->with('success', 'Message sent');
+        // Resolvemos el servicio dinámicamente y despachamos el envío
+        $service = app(config("platforms.{$platform}"));
+        $service->sendMassMessage($users, $message, $options);
+
+        return back()->with('success', 'Mensajes encolados correctamente.');
     }
 }

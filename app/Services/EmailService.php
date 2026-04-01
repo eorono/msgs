@@ -23,7 +23,7 @@ class EmailService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMessage(User $user, $message)
+    public function sendMessage(User $user, $message, array $options = [])
     {
         try {
             // Envío real del correo
@@ -59,12 +59,12 @@ class EmailService implements SendsMessages
      * @param  string  $message Contenido del mensaje
      * @return void
      */
-    public function sendMassMessage(array $users, $message)
+    public function sendMassMessage(array $users, $message, array $options = [])
     {
         $senderId = Auth::id() ?? 1;
 
         foreach ($users as $user) {
-            ProcessMessage::dispatch('email', $user, $message, $senderId);
+            ProcessMessage::dispatch('email', $user, $message, $senderId, $options);
         }
     }
 }

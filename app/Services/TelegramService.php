@@ -4,16 +4,38 @@ namespace App\Services;
 
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
+/**
+ * Servicio de mensajería para la plataforma Telegram.
+ *
+ * Realiza llamadas HTTP reales a la API de Telegram para enviar mensajes.
+ * Requiere la variable de entorno TELEGRAM_BOT_TOKEN configurada.
+ * El usuario destinatario debe tener un telegram_chat_id registrado.
+ *
+ * @implements SendsMessages
+ */
 class TelegramService implements SendsMessages
 {
+    /**
+     * Envía un mensaje a un usuario a través de Telegram.
+     *
+     * Realiza una petición POST a la API de Telegram (https://api.telegram.org/bot{token}/sendMessage)
+     * con el chat_id del destinatario y el contenido del mensaje.
+     * Si el usuario no tiene telegram_chat_id, registra una advertencia.
+     * Si la API retorna error, registra el error en los logs.
+     *
+     * @param  User    $user    Usuario destinatario (debe tener telegram_chat_id)
+     * @param  string  $message Contenido del mensaje
+     * @return void
+     */
     public function sendMessage(User $user, $message)
     {
         $status = 'failed';
 
         if ($user->telegram_chat_id) {
             $token = env('TELEGRAM_BOT_TOKEN');
-            $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+            $response = Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
                 'chat_id' => $user->telegram_chat_id,
                 'text' => $message,
             ]);
@@ -36,6 +58,16 @@ class TelegramService implements SendsMessages
         ]);
     }
 
+    /**
+     * Envía un mensaje masivo a múltiples usuarios a través de Telegram.
+     *
+     * Itera sobre la lista de usuarios y envía el mensaje a cada uno
+     * individualmente, registrando el resultado de cada envío.
+     *
+     * @param  array   $users   Lista de usuarios destinatarios
+     * @param  string  $message Contenido del mensaje
+     * @return void
+     */
     public function sendMassMessage(array $users, $message)
     {
         foreach ($users as $user) {

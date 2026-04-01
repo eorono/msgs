@@ -6,10 +6,16 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Solicitud de validación para la actualización del perfil de usuario.
+ *
+ * Valida que el nombre sea requerido (máximo 255 caracteres) y que el email
+ * sea válido, único en la tabla de usuarios (ignorando el usuario actual).
+ */
 class ProfileUpdateRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
+     * Obtiene las reglas de validación para la solicitud.
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */

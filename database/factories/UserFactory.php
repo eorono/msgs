@@ -7,17 +7,23 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory para la generación de datos de prueba del modelo User.
+ *
+ * Crea usuarios con datos aleatorios: nombre, email único, email verificado,
+ * contraseña hasheada y remember_token. Incluye un estado 'unverified'
+ * para crear usuarios sin verificación de email.
+ *
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Contraseña actual utilizada por la factory.
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Define el estado por defecto del modelo.
      *
      * @return array<string, mixed>
      */
@@ -33,7 +39,9 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indica que la dirección de email del modelo debe ser no verificada.
+     *
+     * @return static
      */
     public function unverified(): static
     {

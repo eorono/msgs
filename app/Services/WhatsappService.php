@@ -4,9 +4,36 @@ namespace App\Services;
 
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
+/**
+ * Servicio de mensajería para la plataforma WhatsApp.
+ *
+ * Realiza llamadas HTTP reales a la Evolution API para enviar mensajes de WhatsApp.
+ * Requiere las variables de entorno configuradas:
+ * - EVOLUTION_API_URL: URL base de la Evolution API
+ * - EVOLUTION_API_INSTANCE: Nombre de la instancia de WhatsApp
+ * - EVOLUTION_API_KEY: Clave de autenticación para la API
+ *
+ * El usuario destinatario debe tener un whatsapp_number registrado.
+ *
+ * @implements SendsMessages
+ */
 class WhatsappService implements SendsMessages
 {
+    /**
+     * Envía un mensaje a un usuario a través de WhatsApp.
+     *
+     * Realiza una petición POST a la Evolution API con el número de teléfono
+     * limpio (solo dígitos) y el contenido del mensaje.
+     * Si el usuario no tiene whatsapp_number, registra una advertencia.
+     * Si las variables de entorno no están configuradas, registra un error.
+     * Si la API retorna error, registra el error en los logs.
+     *
+     * @param  User    $user    Usuario destinatario (debe tener whatsapp_number)
+     * @param  string  $message Contenido del mensaje
+     * @return void
+     */
     public function sendMessage(User $user, $message)
     {
         $status = 'failed';
@@ -20,7 +47,7 @@ class WhatsappService implements SendsMessages
                 // El número ya se limpia al guardar, pero por si acaso nos aseguramos de que no haya +, -, o espacios
                 $cleanNumber = preg_replace('/[^0-9]/', '', $user->whatsapp_number);
 
-                $response = \Illuminate\Support\Facades\Http::withHeaders([
+                $response = Http::withHeaders([
                     'apikey' => $apiKey,
                     'Content-Type' => 'application/json',
                 ])->post("{$apiUrl}/message/sendText/{$instance}", [
@@ -49,6 +76,16 @@ class WhatsappService implements SendsMessages
         ]);
     }
 
+    /**
+     * Envía un mensaje masivo a múltiples usuarios a través de WhatsApp.
+     *
+     * Itera sobre la lista de usuarios y envía el mensaje a cada uno
+     * individualmente, registrando el resultado de cada envío.
+     *
+     * @param  array   $users   Lista de usuarios destinatarios
+     * @param  string  $message Contenido del mensaje
+     * @return void
+     */
     public function sendMassMessage(array $users, $message)
     {
         foreach ($users as $user) {

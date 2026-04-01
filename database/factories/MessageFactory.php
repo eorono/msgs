@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\WithFaker;
 
 /**
+ * Factory para la generación de datos de prueba del modelo Message.
+ *
+ * Crea registros de mensajes con datos aleatorios: plataforma seleccionada
+ * de las disponibles en la configuración, contenido generado por Faker,
+ * estado aleatorio (sent/failed) y usuarios remitente y destinatario creados
+ * automáticamente.
+ *
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Message>
  */
 class MessageFactory extends Factory
@@ -14,7 +21,7 @@ class MessageFactory extends Factory
     use WithFaker;
 
     /**
-     * Define the model's default state.
+     * Define el estado por defecto del modelo.
      *
      * @return array<string, mixed>
      */
